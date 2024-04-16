@@ -1,6 +1,8 @@
-import React, {useState} from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, Button } from 'react-native';
+import React, {useState, useEffect} from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, Button, Pressable } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { Audio } from 'expo-av';
+import * as FileSystem from 'expo-file-system';
 
 export default function Chat() {
 
@@ -9,6 +11,18 @@ export default function Chat() {
     ]);
 
     const [inputText, setInputText] = useState('');
+
+    const [color, setColor] = useState("white");
+
+    const [sizeRecord, setSizeRecord] = useState(24);
+
+    const [isRecording, setIsRecording] = useState(false);
+
+    const [recording, setRecording] = useState(null);
+
+    const [sound, setSound] = useState(null);
+
+    const [isPlaying, setIsPlaying] = useState(false);
 
     const generateRandomId = () => {
       return Math.floor(Math.random() * 1000000); // Gera um número aleatório entre 0 e 999999
@@ -21,12 +35,60 @@ export default function Chat() {
         </View>
     );
 
-    const handleAudioRecord = () => {
+    const handleAudioRecord = async () => {
         // Adicione a lógica de gravação de áudio aqui
+        setIsRecording(true);
+        setSizeRecord(50);
         console.log("Gravação de áudio iniciada");
-      };
+        try {
+          setIsRecording(true);
+          const recording = new Audio.Recording();
+          await recording.prepareToRecordAsync(Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY);
+          await recording.startAsync();
+          setRecording(recording);
 
-      const handleAutomaticResponse = (userMessage) => {
+        } catch (error) {
+            console.error('Failed to start recording', error);
+        }
+    };
+
+    const handleAudioStopRecord = async () => {
+        // Adicione a lógica de parada de gravação de áudio aqui
+        setIsRecording(false);
+        setSizeRecord(24);
+        console.log("Gravação de áudio parada");
+        try {
+          setIsRecording(false);
+          await recording.stopAndUnloadAsync();
+          const uri = recording.getURI();
+          console.log('Recording URI:', uri);
+          await saveRecording(uri);
+      } catch (error) {
+          console.error('Failed to stop recording', error);
+      }
+    };
+
+    const saveRecording = async (uri) => {
+      const albumDirectory = `${FileSystem.documentDirectory}GreenCodeAudio/`;
+      await FileSystem.makeDirectoryAsync(albumDirectory, { intermediates: true });
+      const newPath = `${albumDirectory}test.mp3`;
+      await FileSystem.moveAsync({ from: uri, to: newPath });
+      console.log('Recording saved to:', newPath);
+    };
+
+    const playRecording = async () => {
+      try {
+          const { sound } = await Audio.Sound.createAsync({ uri: `${FileSystem.documentDirectory}GreenCodeAudio/test.mp3` });
+          setSound(sound);
+          console.log(`${FileSystem.documentDirectory}GreenCodeAudio/test.mp3`);
+          await sound.playAsync();
+          setIsPlaying(true);
+      } catch (error) {
+          console.error('Failed to play recording', error);
+      }
+    };
+
+    const handleAutomaticResponse = (userMessage) => {
         // Lógica para gerar uma resposta automática com base na mensagem do usuário
         let response = "";
     
@@ -88,12 +150,17 @@ export default function Chat() {
         console.log("Mensagens apagadas");
     };
 
-    return (
+    return ( 
         <View style={styles.container}>
+
+          {/* Header  */}
           <View style={styles.header}>
             <Text style={styles.headerText}>GreenCode</Text>
             <Button title="Clear" styles={{justifySelf: "right"}} onPress={handleClear} />
+            <Button title="Audio" styles={{justifySelf: "right"}} onPress={playRecording} />
           </View>
+
+          {/* Lista de mensagens */}
           <FlatList
             data={messages}
             renderItem={renderItem}
@@ -101,15 +168,32 @@ export default function Chat() {
             style={styles.messages}
             // inverted // Inverte a ordem das mensagens para exibir as mais recentes no topo
           />
+
+          {/* Campo de entrada de texto */}
           <View style={styles.inputContainer}>
-            
+            { isRecording ? 
+            <>
+            <View style={{width: "80%", flexDirection: "row", alignItems: "center", marginLeft: 20}}>
+              <MaterialIcons name="keyboard-voice" size={24} color="red" />
+              <Text style={{fontSize: 19, marginLeft:7, fontWeight: "bold"}}>Gravando...</Text>
+            </View>
+            </> 
+            : 
+            <>
             <TextInput style={styles.input} placeholder="Digite sua mensagem..." onChangeText={newText => setInputText(newText)} defaultValue={inputText} />
             <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
               <Text style={styles.sendButtonText}>Enviar</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.audioButton} onPress={handleAudioRecord}>
-                <MaterialIcons name="keyboard-voice" size={24} color="#075e54" />
-            </TouchableOpacity>
+            </>
+            }
+
+
+            {/* Botão de gravação de áudio */}
+            <Pressable style={styles.audioButton} onPressIn={handleAudioRecord} onPressOut={handleAudioStopRecord}>
+                <MaterialIcons name="keyboard-voice" size={sizeRecord} color="white" />
+            </Pressable>
+
+            
           </View>
         </View>
     );
@@ -145,6 +229,7 @@ const styles = StyleSheet.create({
     },
     inputContainer: {
       flexDirection: 'row',
+      justifyContent: 'center',
       alignItems: 'center',
       borderTopWidth: 1,
       borderTopColor: '#ccc',
@@ -171,6 +256,7 @@ const styles = StyleSheet.create({
     audioButton: {
         marginLeft: 2,
         padding: 7,
-        borderRadius: 20,
+        borderRadius: 40,
+        backgroundColor: "#075e54",
       },
   });
