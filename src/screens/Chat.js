@@ -7,14 +7,16 @@ import * as FileSystem from 'expo-file-system';
 export default function Chat() {
 
     const [messages, setMessages] = useState( [
-        { id: 1, sender: 'Bot', content: 'Olá! Como posso te ajudar?' },
+        { id: 1, sender: 'Bot', content: 'Olá! Como posso te ajudar?', type: 'text'},
     ]);
+
+    const [isTyping, setIsTyping] = useState(false);
 
     const [inputText, setInputText] = useState('');
 
     const [color, setColor] = useState("white");
 
-    const [sizeRecord, setSizeRecord] = useState(24);
+    const [sizeRecord, setSizeRecord] = useState(30);
 
     const [isRecording, setIsRecording] = useState(false);
 
@@ -28,12 +30,26 @@ export default function Chat() {
       return Math.floor(Math.random() * 1000000); // Gera um número aleatório entre 0 e 999999
     };
 
-    const renderItem = ({ item }) => (
-        <View style={styles.message}>
-          <Text style={styles.sender}>{item.sender}:</Text>
-          <Text style={styles.content}>{item.content}</Text>
-        </View>
-    );
+    const renderItem = ({ item }) => {
+        if(item.type === 'text'){
+          return (
+              <View style={styles.message}>
+                  <Text style={styles.sender}>{item.sender}:</Text>
+                  <Text style={styles.content}>{item.content}</Text>
+              </View>
+          );
+        }
+        if(item.type === 'audio'){
+          return (
+              <View style={styles.message}>
+                  <Text style={styles.sender}>{item.sender}:</Text>
+                  <Pressable style={styles.audioButton} onPress={() => playRecording(item.content)}>
+                        <MaterialIcons name="play-circle" size={24} color="white" />
+                  </Pressable>
+              </View>
+          );
+        }
+    };
 
     const handleAudioRecord = async () => {
         // Adicione a lógica de gravação de áudio aqui
@@ -62,7 +78,16 @@ export default function Chat() {
           await recording.stopAndUnloadAsync();
           const uri = recording.getURI();
           console.log('Recording URI:', uri);
-          await saveRecording(uri);
+          const newPath = await saveRecording(uri);
+          const newAudio = {
+            id: generateRandomId(),
+            sender: "User",
+            content: newPath,
+            type: "audio",
+          };
+          setMessages([...messages,newAudio]);
+
+
       } catch (error) {
           console.error('Failed to stop recording', error);
       }
@@ -71,16 +96,27 @@ export default function Chat() {
     const saveRecording = async (uri) => {
       const albumDirectory = `${FileSystem.documentDirectory}GreenCodeAudio/`;
       await FileSystem.makeDirectoryAsync(albumDirectory, { intermediates: true });
-      const newPath = `${albumDirectory}test.mp3`;
+      // pega a data e a hora atual
+      const date = new Date();
+      const day = date.getDate();
+      const month = date.getMonth() + 1;
+      const year = date.getFullYear();
+      const hours = date.getHours();
+      const minutes = date.getMinutes();
+      const seconds = date.getSeconds();
+      // cria o nome do arquivo
+      const fileName = `${day}-${month}-${year}_${hours}-${minutes}-${seconds}.mp3`;
+      const newPath = `${albumDirectory}` + fileName;
       await FileSystem.moveAsync({ from: uri, to: newPath });
       console.log('Recording saved to:', newPath);
+      return newPath;
     };
 
-    const playRecording = async () => {
+    const playRecording = async (uri) => {
       try {
-          const { sound } = await Audio.Sound.createAsync({ uri: `${FileSystem.documentDirectory}GreenCodeAudio/test.mp3` });
+          const { sound } = await Audio.Sound.createAsync({ uri: uri });
           setSound(sound);
-          console.log(`${FileSystem.documentDirectory}GreenCodeAudio/test.mp3`);
+          console.log("Playing: "+uri);
           await sound.playAsync();
           setIsPlaying(true);
       } catch (error) {
@@ -110,39 +146,42 @@ export default function Chat() {
         return response;
     };
 
-      const handleSend = () => {
-        if (inputText.trim() === "") {
-            // Se a mensagem estiver em branco, não faz nada
-            console.log("Vazio")
-            return;
-        }
+    const handleSend = () => {
+      setIsTyping(false);
+      if (inputText.trim() === "") {
+          // Se a mensagem estiver em branco, não faz nada
+          console.log("Vazio")
+          return;
+      }
 
-        const newMessage = {
-            id: generateRandomId(),
-            sender: 'User', // Ou qualquer outra identificação do remetente
-            content: inputText,
-        };
+      const newMessage = {
+          id: generateRandomId(),
+          sender: 'User', // Ou qualquer outra identificação do remetente
+          content: inputText,
+          type: 'text',
+      };
 
-        console.log(messages)
+      console.log(messages)
 
-        // Lógica adicional: enviar mensagem para o servidor, etc.
+      // Lógica adicional: enviar mensagem para o servidor, etc.
 
-        // Gera uma resposta automática com base na mensagem do usuário
-        const autoResponse = handleAutomaticResponse(inputText);
+      // Gera uma resposta automática com base na mensagem do usuário
+      const autoResponse = handleAutomaticResponse(inputText);
 
-        const botMessage = {
-            id: generateRandomId(), // ou qualquer outra lógica para gerar um ID único
-            sender: 'Bot',
-            content: autoResponse,
-        };
+      const botMessage = {
+          id: generateRandomId(), // ou qualquer outra lógica para gerar um ID único
+          sender: 'Bot',
+          content: autoResponse,
+          type: 'text',
+      };
 
-        // Adiciona a resposta automática ao array de mensagens
-        setMessages([...messages, newMessage,botMessage]);
+      // Adiciona a resposta automática ao array de mensagens
+      setMessages([...messages, newMessage,botMessage]);
 
-        console.log(messages)
+      console.log(messages)
 
-        // Limpa o campo de entrada após o envio da mensagem
-        setInputText('');
+      // Limpa o campo de entrada após o envio da mensagem
+      setInputText('');
     };
 
     const handleClear = () => {
@@ -157,7 +196,6 @@ export default function Chat() {
           <View style={styles.header}>
             <Text style={styles.headerText}>GreenCode</Text>
             <Button title="Clear" styles={{justifySelf: "right"}} onPress={handleClear} />
-            <Button title="Audio" styles={{justifySelf: "right"}} onPress={playRecording} />
           </View>
 
           {/* Lista de mensagens */}
@@ -171,29 +209,36 @@ export default function Chat() {
 
           {/* Campo de entrada de texto */}
           <View style={styles.inputContainer}>
-            { isRecording ? 
-            <>
-            <View style={{width: "80%", flexDirection: "row", alignItems: "center", marginLeft: 20}}>
-              <MaterialIcons name="keyboard-voice" size={24} color="red" />
-              <Text style={{fontSize: 19, marginLeft:7, fontWeight: "bold"}}>Gravando...</Text>
-            </View>
-            </> 
-            : 
-            <>
-            <TextInput style={styles.input} placeholder="Digite sua mensagem..." onChangeText={newText => setInputText(newText)} defaultValue={inputText} />
-            <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
-              <Text style={styles.sendButtonText}>Enviar</Text>
-            </TouchableOpacity>
-            </>
-            }
-
-
-            {/* Botão de gravação de áudio */}
-            <Pressable style={styles.audioButton} onPressIn={handleAudioRecord} onPressOut={handleAudioStopRecord}>
-                <MaterialIcons name="keyboard-voice" size={sizeRecord} color="white" />
-            </Pressable>
-
-            
+              { !isRecording &&
+                <>
+                  <TextInput style={styles.input} placeholder="Digite sua mensagem..." 
+                    onChangeText={newText  => {setInputText(newText); if(newText!=''){setIsTyping(true)} else{setIsTyping(false)};}} 
+                    defaultValue={inputText} />
+                </>
+              }
+              { isRecording && 
+                <>
+                  <View style={{width: "80%", flexDirection: "row", alignItems: "center", marginLeft: 20}}>
+                    <MaterialIcons name="keyboard-voice" size={24} color="red" />
+                    <Text style={{fontSize: 19, marginLeft:7, fontWeight: "bold"}}>Gravando...</Text>
+                  </View>
+                </> 
+              }
+              { isTyping &&
+                <>
+                  <Pressable style={styles.audioButton} onPress={handleSend}>
+                        <MaterialIcons name="send" size={25} color="white" />
+                  </Pressable>
+                </>
+              }
+              { !isTyping &&
+                <>
+                  {/* Botão de gravação de áudio */}
+                  <Pressable style={styles.audioButton} onPressIn={handleAudioRecord} onPressOut={handleAudioStopRecord}>
+                        <MaterialIcons name="keyboard-voice" size={sizeRecord} color="white" />
+                  </Pressable>
+                </>
+              }
           </View>
         </View>
     );
