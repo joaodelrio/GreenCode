@@ -6,7 +6,7 @@ import Audio from '../screens/Audio';
 
 const screens = {
     Home: {
-        screen: Audio,
+        screen: Chat,
     }
 };
 

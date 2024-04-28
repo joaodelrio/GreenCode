@@ -1,12 +1,23 @@
 import React, {useState} from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, Button } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { getResponse } from '../apiOpenAi/api';
 
 export default function Chat() {
 
+
+  //ARRUMAR ORDEM DAS MENSAGEM DO BOT ESTAO SENDO ATUALIZADAS ATRASADAS
+
+
+
+
+
+
+
     const [messages, setMessages] = useState( [
-        { id: 1, sender: 'Bot', content: 'Olá! Como posso te ajudar?' },
     ]);
+
+    const [response, setResponse] = useState("");
 
     const [inputText, setInputText] = useState('');
 
@@ -27,28 +38,34 @@ export default function Chat() {
       };
 
       const handleAutomaticResponse = (userMessage) => {
-        // Lógica para gerar uma resposta automática com base na mensagem do usuário
-        let response = "";
-    
+
         // Verifica a mensagem do usuário e gera uma resposta correspondente
         if (userMessage.toLowerCase().includes("quantidade")) {
             if(userMessage.match(/\d+/g)==null){
-                response = "Desculpe, não entendi. Poderia informar a quantidade?";
+                setResponse("Desculpe, não entendi. Poderia informar a quantidade?")
             } else if(userMessage.match(/kg/g)==null){
-                response = "Desculpe, não entendi. Poderia informar a unidade de medida da quantidade? [kg, Ton, lt, Un]";
+                setResponse("Desculpe, não entendi. Poderia informar a unidade de medida da quantidade? [kg, Ton, lt, Un]")
             } else {
-              response = "Pela sua mensagem, foi entendido as seguintes informações:\nQuantidade:" + userMessage.match(/\d+/g) + userMessage.match(/kg/g) + ";";
+              setResponse("Pela sua mensagem, foi entendido as seguintes informações:\nQuantidade:" + userMessage.match(/\d+/g) + userMessage.match(/kg/g) + ";")
             }
         } else if (userMessage.toLowerCase().includes("ajuda")) {
-            response = "Claro! Como posso te ajudar?";
+            setResponse("Claro! Como posso te ajudar?")
         } else {
-            response = "Desculpe, não entendi. Posso te ajudar com algo mais?";
+          (async () => {
+            try {
+              const responseData = await getResponse(inputText)
+              console.log("Responsta:" + responseData)
+              setResponse(responseData)
+            }catch (e) {
+              console.log(e.message)
+            }
+          })();
         }
-    
         return response;
     };
 
       const handleSend = () => {
+
         if (inputText.trim() === "") {
             // Se a mensagem estiver em branco, não faz nada
             console.log("Vazio")
@@ -61,7 +78,7 @@ export default function Chat() {
             content: inputText,
         };
 
-        console.log(messages)
+        // console.log(messages)
 
         // Lógica adicional: enviar mensagem para o servidor, etc.
 
@@ -77,7 +94,7 @@ export default function Chat() {
         // Adiciona a resposta automática ao array de mensagens
         setMessages([...messages, newMessage,botMessage]);
 
-        console.log(messages)
+        // console.log(messages)
 
         // Limpa o campo de entrada após o envio da mensagem
         setInputText('');
