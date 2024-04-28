@@ -1,5 +1,6 @@
-const api_url = "https://api.openai.com/v1/chat/completions"
-const api_key = "sk-proj-oWL0JQe9HWH5V4GmII6uT3BlbkFJiDQIyxsm6ZYo9Bcg9eEP"
+const api_url = process.env.API_URL;
+const api_key = process.env.API_KEY;
+
 
 export async function getResponse (request){
     
