@@ -17,7 +17,7 @@ export default function Home({navigation}) {
     } 
 
     return (
-        <View style={styles.container}>
+        <View class = "bg-main-black" style={styles.container}>
             <View style={styles.discurso }>
                 <Text>Texto reconhecido:</Text>
                 <Text>{JSON.stringify(state,null, 2)}</Text>

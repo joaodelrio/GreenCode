@@ -34,7 +34,7 @@ export default function Chat() {
         if(item.type === 'text'){
           return (
               <View style={styles.message}>
-                  <Text style={styles.sender}>{item.sender}:</Text>
+                  <Text class="" style={styles.sender}>{item.sender}:</Text>
                   <Text style={styles.content}>{item.content}</Text>
               </View>
           );
