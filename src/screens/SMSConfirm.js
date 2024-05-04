@@ -1,7 +1,7 @@
 import { StyleSheet, Text, TextInput, View, Image, Pressable} from "react-native";
 
 
-export default function Login({navigation}){
+export default function SMsConfirm({navigation}){
 
     const styles = StyleSheet.create({
         container: {
@@ -45,7 +45,6 @@ export default function Login({navigation}){
             marginBottom: 22,
             paddingLeft: 15,
             height: 60,
-            color: '#fff',
             fontSize: 18,
             fontFamily: 'Sora_Semibold',
             textAlign: 'left',
@@ -70,9 +69,7 @@ export default function Login({navigation}){
         }
     })
 
-    const sendSMS = () => {
-        navigation.navigate('SMSConfirm');  
-    }
+
     
     return(
         <View style={styles.container}>
@@ -91,7 +88,7 @@ export default function Login({navigation}){
                 placeholderTextColor="#96B298" 
                 ></TextInput>
                 <Pressable
-                onPress={sendSMS()}
+               
                 style={styles.loginButton}
                 >
                     <Text
