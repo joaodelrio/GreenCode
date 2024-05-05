@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, Button, 
 import { MaterialIcons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
+import audio from "../../assets/audio2.m4a";
 
 export default function Chat() {
 
@@ -105,7 +106,7 @@ export default function Chat() {
       const minutes = date.getMinutes();
       const seconds = date.getSeconds();
       // cria o nome do arquivo
-      const fileName = `${day}-${month}-${year}_${hours}-${minutes}-${seconds}.mp3`;
+      const fileName = `${day}-${month}-${year}_${hours}-${minutes}-${seconds}.m4a`;
       const newPath = `${albumDirectory}` + fileName;
       await FileSystem.moveAsync({ from: uri, to: newPath });
       console.log('Recording saved to:', newPath);
@@ -114,7 +115,7 @@ export default function Chat() {
 
     const playRecording = async (uri) => {
       try {
-          const { sound } = await Audio.Sound.createAsync({ uri: uri });
+          const { sound } = await Audio.Sound.createAsync({ uri: "../../assets/audio2.m4a" });
           setSound(sound);
           console.log("Playing: "+uri);
           await sound.playAsync();

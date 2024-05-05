@@ -1,20 +1,14 @@
 import React, {useEffect, useState, useCallback} from 'react';
 import { StyleSheet, Text, View, Pressable } from 'react-native';
-import Voice, { SpeechRecognizedEvent, SpeechResultsEvent } from '@react-native-voice/voice';
 import { useVoiceRecognition } from '../hooks/useVoiceRecognition';
 
 
 
 export default function Home({navigation}) {
 
-    const { startRecognizing, stopRecognizing, cancelRecognizing, destroyRecognizer, state } = useVoiceRecognition();
+    const { state, startRecognizing, stopRecognizing, destroyRecognizer  } = useVoiceRecognition();
     const [borderColor, setBorderColor] = useState('black');
     const [textColor, setTextColor] = useState('red');
-    const [teste, setTeste] = useState('joaoberasd');
-
-    const moveChat = () => {
-        navigation.navigate('Chat');
-    } 
 
     return (
         <View style={styles.container}>
@@ -22,7 +16,6 @@ export default function Home({navigation}) {
                 <Text>Texto reconhecido:</Text>
                 <Text>{JSON.stringify(state,null, 2)}</Text>
                 {/* <Text>{state.results[0]}</Text> */}
-                <Text>{teste}</Text>
             </View>
             <View style={styles.containerBotao}>
                 <Pressable
@@ -30,13 +23,10 @@ export default function Home({navigation}) {
                         setBorderColor('green');
                         setTextColor('green');
                         startRecognizing();
-                        setTeste('joao');
                     }} onPressOut={() => {
                         setBorderColor('black');
                         setTextColor('red');
                         stopRecognizing();
-                        // handleSubmit();
-                        setTeste('beras');
                     }}
                     style={{
                         padding: 20,
@@ -52,9 +42,6 @@ export default function Home({navigation}) {
                 </Pressable>
                 
             </View>
-            <Pressable onPress={moveChat} style={styles.botao}>
-                <Text style={{color: "white", textAlign: 'center',}}>Chat</Text>
-            </Pressable>
         </View>
     );
 }
