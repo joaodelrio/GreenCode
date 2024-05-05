@@ -25,10 +25,11 @@ function App() {
       screenOptions={{
         headerShown: false
       }}>
+        <Stack.Screen name="Chat" component={Chat} />
         <Stack.Screen name="Login" component={Login} />    
         <Stack.Screen name="SMSConfirm" component={SMSConfirm} />         
         <Stack.Screen name="Home" component={Home} />
-        <Stack.Screen name="Chat" component={Chat} />
+        
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -1,14 +1,26 @@
 import React, {useState, useEffect} from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, Button, Pressable } from 'react-native';
+import { View, Text, StyleSheet, TextInput, Image, TouchableOpacity, FlatList, Button, Pressable } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
 
 export default function Chat() {
 
-    const [messages, setMessages] = useState( [
-        { id: 1, sender: 'Bot', content: 'Olá! Como posso te ajudar?', type: 'text'},
+    const date = new Date();
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const [messages, setMessages] = useState([
+        { id: 1, 
+          sender: 'Bot', 
+          content: 'Olá! Como posso te ajudar?', 
+          type: 'text', 
+          date: day+"/"+month+"/ "+hours+":"+minutes
+        },
     ]);
+
+    const [isMessageFromUser, setIsMessageFromUser] = useState();
 
     const [isTyping, setIsTyping] = useState(false);
 
@@ -36,6 +48,8 @@ export default function Chat() {
               <View style={styles.message}>
                   <Text class="" style={styles.sender}>{item.sender}:</Text>
                   <Text style={styles.content}>{item.content}</Text>
+                  <Text style={styles.messageDate}>{item.date}</Text>
+
               </View>
           );
         }
@@ -153,12 +167,17 @@ export default function Chat() {
           console.log("Vazio")
           return;
       }
-
+      const date = new Date();
+      const day = date.getDate();
+      const month = date.getMonth() + 1;
+      const hours = date.getHours();
+      const minutes = date.getMinutes();
       const newMessage = {
           id: generateRandomId(),
           sender: 'User', // Ou qualquer outra identificação do remetente
           content: inputText,
           type: 'text',
+          date: day+"/"+month+"/ "+hours+":"+minutes
       };
 
       console.log(messages)
@@ -173,6 +192,7 @@ export default function Chat() {
           sender: 'Bot',
           content: autoResponse,
           type: 'text',
+          date: day+"/"+month+"/ "+hours+":"+minutes
       };
 
       // Adiciona a resposta automática ao array de mensagens
@@ -194,8 +214,27 @@ export default function Chat() {
 
           {/* Header  */}
           <View style={styles.header}>
-            <Text style={styles.headerText}>GreenCode</Text>
-            <Button title="Clear" styles={{justifySelf: "right"}} onPress={handleClear} />
+            <View style={{
+              displar:'flex',
+              flexDirection: 'row'
+            }}>
+              <Image
+              style={styles.headerImage}
+              source={require('../../assets/green-symbol.png')}
+              />
+              <Text style={styles.headerText}>GreenCode</Text>
+            </View>
+            <View style={{
+              marginTop:10,
+              width: '30%',
+              displar:'flex',
+              flexDirection: 'row',
+              justifyContent: 'space-between'
+            }}>
+              <MaterialIcons name="settings" size={25} color="white" />
+              <MaterialIcons name="help" size={25} color="white" />
+              <MaterialIcons name="logout" size={25} color="#F23131" />
+            </View>
           </View>
 
           {/* Lista de mensagens */}
@@ -220,7 +259,7 @@ export default function Chat() {
                 <>
                   <View style={{width: "80%", flexDirection: "row", alignItems: "center", marginLeft: 20}}>
                     <MaterialIcons name="keyboard-voice" size={24} color="red" />
-                    <Text style={{fontSize: 19, marginLeft:7, fontWeight: "bold"}}>Gravando...</Text>
+                    <Text style={{fontSize: 19, color:"#fff", marginLeft:7, fontWeight: "bold"}}>Gravando...</Text>
                   </View>
                 </> 
               }
@@ -247,19 +286,28 @@ export default function Chat() {
 const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: '#fff',
+      backgroundColor: '#2E2E2E',
     },
     header: {
-      backgroundColor: '#075e54',
+      paddingHorizontal: 20,
+      backgroundColor: '#1E1E1E',
       alignItems: 'center',
-      flexDirection: 'row',
-      justifyContent: 'center',  
+      flexDirection: 'row', 
+      justifyContent: 'space-between',
+      height: 70
     },
     headerText: {
+      marginTop:15,
       color: '#fff',
       fontSize: 20,
+      fontFamily: 'Sora_Semibold',
+    },
+    headerImage: {
+      width: 55,
+      height: 48
     },
     messages: {
+      display: 'flex',
       flex: 1,
       padding: 10,
     },
@@ -268,25 +316,33 @@ const styles = StyleSheet.create({
     },
     sender: {
       fontWeight: 'bold',
+      color:"#fff",
     },
     content: {
       fontSize: 16,
+      color:"#fff",
+    },
+    messageDate: {
+      fontWeight: '600',
+      marginTop:3,
+      fontSize: 12,
+      color:"#1F9F2B",
     },
     inputContainer: {
       flexDirection: 'row',
       justifyContent: 'center',
       alignItems: 'center',
-      borderTopWidth: 1,
-      borderTopColor: '#ccc',
       padding: 10,
+      backgroundColor: '#13651B',
     },
     input: {
       flex: 1,
       padding: 8,
-      borderWidth: 1,
-      borderColor: '#ccc',
-      borderRadius: 5,
+      height: 50,
+      borderRadius: 6,
       marginRight: 10,
+      paddingLeft: 10,
+      backgroundColor: "#fff"
     },
     sendButton: {
       backgroundColor: '#075e54',
@@ -302,6 +358,7 @@ const styles = StyleSheet.create({
         marginLeft: 2,
         padding: 7,
         borderRadius: 40,
-        backgroundColor: "#075e54",
+        color: "#fff",
+        backgroundColor: "#1C4020",
       },
   });

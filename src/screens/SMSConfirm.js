@@ -1,7 +1,10 @@
+import { useState } from "react";
 import { StyleSheet, Text, TextInput, View, Image, Pressable} from "react-native";
 
-
 export default function SMsConfirm({navigation}){
+
+    const [code, setCode] = useState(undefined)
+    const [digitsCount, setDigitsCount] = useState(0)
 
     const styles = StyleSheet.create({
         container: {
@@ -55,7 +58,6 @@ export default function SMsConfirm({navigation}){
             borderRadius: 6
         },
         loginButton:{
-            backgroundColor:"#19B729",
             height: 60,
             borderRadius: 6,
             display: 'flex',
@@ -73,10 +75,20 @@ export default function SMsConfirm({navigation}){
             display: 'flex',
             flexDirection: 'row',  
             justifyContent: 'space-between'    
-        }
+        },
+        disableLoginButtonColor:{
+            backgroundColor:"#595C5C",
+        },
+        enableLoginButtonColor:{
+            backgroundColor:"#19B729",
+        },
     })
 
-
+    const confirmSMS = () => {
+       
+        navigation.navigate('Chat');  
+        
+    }
     
     return(
         <View style={styles.container}>
@@ -90,13 +102,67 @@ export default function SMsConfirm({navigation}){
             <View style={styles.loginView}>
                 <Text style={styles.loginText}>Confirmar código</Text>
                 <View style={styles.loginInputView}>
-                    <TextInput keyboardType="numeric" style={styles.loginInput}></TextInput> 
-                    <TextInput keyboardType="numeric" style={styles.loginInput}></TextInput>
-                    <TextInput keyboardType="numeric" style={styles.loginInput}></TextInput>
-                    <TextInput keyboardType="numeric" style={styles.loginInput}></TextInput>
-                    <TextInput keyboardType="numeric" style={styles.loginInput}></TextInput>
+                    <TextInput 
+                    onChangeText={(text)=> {
+                        
+                        if(code === undefined)
+                            setCode(text)
+                        else{
+                            setCode(code+text)   
+                        }
+                        setDigitsCount(digitsCount+1)
+                    }} 
+                    keyboardType="numeric" 
+                    style={styles.loginInput}></TextInput> 
+                    <TextInput  
+                    onChangeText={text=> {
+                        if(code === undefined)
+                            setCode(text)
+                        else{
+                            setCode(code+text)   
+                        }
+                        setDigitsCount(digitsCount+1)
+                    }}  
+                    keyboardType="numeric" 
+                    style={styles.loginInput}></TextInput>
+                    <TextInput  
+                    onChangeText={text=> {
+                        if(code === undefined)
+                            setCode(text)
+                        else{
+                            setCode(code+text)   
+                        }
+                        setDigitsCount(digitsCount+1)
+                    }} 
+                    keyboardType="numeric" 
+                    style={styles.loginInput}></TextInput>
+                    <TextInput  
+                    onChangeText={text=> {
+                        if(code === undefined)
+                            setCode(text)
+                        else{
+                            setCode(code+text)   
+                        }
+                        setDigitsCount(digitsCount+1)
+                    }} 
+                    keyboardType="numeric" 
+                    style={styles.loginInput}></TextInput>
+                    <TextInput  
+                    onChangeText={text=> {
+                        if(code === undefined)
+                            setCode(text)
+                        else{
+                            setCode(code+text)   
+                        }
+                        setDigitsCount(digitsCount+1)
+                    }}  
+                    keyboardType="numeric" 
+                    style={styles.loginInput}></TextInput>
                 </View>
-                <Pressable style={styles.loginButton}>
+                <Pressable 
+                // disabled = {digits.length < 5}
+                onPress={confirmSMS} 
+                style={[styles.loginButton, digitsCount < 5 ? styles.disableLoginButtonColor : styles.enableLoginButtonColor]}>
                     <Text style={styles.loginButtonText}>Verificar</Text>
                 </Pressable>
             </View>
