@@ -1,7 +1,11 @@
 import { StyleSheet, Text, TextInput, View, Image, Pressable} from "react-native";
-
+import { useState } from "react";
 
 export default function Login({navigation}){
+
+    const [cellphoneNumber, setCellphoneNumber] = useState(undefined)
+
+    const [hasLessThanDigitsError, setHasThanDigitsError] = useState(false)
 
     const styles = StyleSheet.create({
         container: {
@@ -36,10 +40,15 @@ export default function Login({navigation}){
         },
         loginText:{
             marginBottom: 8,
-            color:"#19B729",
             fontSize: 18,
             fontFamily: 'Sora_Semibold',
             textAlign: 'left'
+        },
+        loginTextColor:{ 
+            color:"#19B729",
+        },
+        loginTextColorErrored:{ 
+            color:"#F23131",
         },
         loginInput:{
             marginBottom: 22,
@@ -53,6 +62,12 @@ export default function Login({navigation}){
             borderWidth: 2,
             borderRadius: 6
         },
+        loginInputColor:{ 
+            borderColor: '#1F9F2B',
+        },
+        loginInputColorErrored:{ 
+            borderColor: '#F23131',
+        },
         loginButton:{
             backgroundColor:"#19B729",
             height: 60,
@@ -60,6 +75,12 @@ export default function Login({navigation}){
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center'
+        },
+        disableLoginButtonColor:{
+            backgroundColor:"#595C5C",
+        },
+        enableLoginButtonColor:{
+            backgroundColor:"#19B729",
         },
         loginButtonText:{
             color:"#fff",
@@ -71,7 +92,11 @@ export default function Login({navigation}){
     })
 
     const sendSMS = () => {
-        navigation.navigate('SMSConfirm');  
+        if(cellphoneNumber.split('').length < 10){
+            setHasThanDigitsError(true)
+        }else{
+            navigation.navigate('SMSConfirm');  
+        }
     }
     
     return(
@@ -84,15 +109,23 @@ export default function Login({navigation}){
                 <Text style={styles.welcomeText}>Bem vindo</Text>
             </View>
             <View style={styles.loginView}>
-                <Text style={styles.loginText}>Número de contato</Text>
+                <Text style={[styles.loginText,
+                    hasLessThanDigitsError ? styles.loginTextColorErrored : styles.loginTextColor
+                ]}>
+                    {hasLessThanDigitsError ? 'Número de contato inválido': 'Número de contato'}</Text>
                 <TextInput
-                style={styles.loginInput}
+                keyboardType="numeric"
+                onChangeText={event=> setCellphoneNumber(event)}
+                style={[styles.loginInput, 
+                    hasLessThanDigitsError ? styles.loginInputColorErrored : styles.loginInputColor
+                ]}
                 placeholder="(99) 99999-9999"
                 placeholderTextColor="#96B298" 
                 ></TextInput>
                 <Pressable
-                onPress={sendSMS()}
-                style={styles.loginButton}
+                disabled= {cellphoneNumber === undefined}
+                onPress={sendSMS}
+                style={[styles.loginButton, cellphoneNumber === undefined ? styles.disableLoginButtonColor : styles.enableLoginButtonColor]}
                 >
                     <Text
                     style={styles.loginButtonText}

@@ -43,13 +43,15 @@ export default function SMsConfirm({navigation}){
         },
         loginInput:{
             marginBottom: 22,
-            paddingLeft: 15,
             height: 60,
-            fontSize: 18,
+            fontSize: 25,
+            width: 60,
+            color: '#fff',
             fontFamily: 'Sora_Semibold',
             textAlign: 'left',
             borderColor: '#1F9F2B',
             borderWidth: 2,
+            textAlign: 'center',
             borderRadius: 6
         },
         loginButton:{
@@ -66,6 +68,11 @@ export default function SMsConfirm({navigation}){
             fontSize: 18,
             fontFamily: 'Sora_Semibold',
             textTransform: 'uppercase'
+        },
+        loginInputView:{
+            display: 'flex',
+            flexDirection: 'row',  
+            justifyContent: 'space-between'    
         }
     })
 
@@ -81,22 +88,18 @@ export default function SMsConfirm({navigation}){
                 <Text style={styles.welcomeText}>Bem vindo</Text>
             </View>
             <View style={styles.loginView}>
-                <Text style={styles.loginText}>Número de contato</Text>
-                <TextInput
-                style={styles.loginInput}
-                placeholder="(99) 99999-9999"
-                placeholderTextColor="#96B298" 
-                ></TextInput>
-                <Pressable
-               
-                style={styles.loginButton}
-                >
-                    <Text
-                    style={styles.loginButtonText}
-                    >Enviar SMS</Text>
+                <Text style={styles.loginText}>Confirmar código</Text>
+                <View style={styles.loginInputView}>
+                    <TextInput keyboardType="numeric" style={styles.loginInput}></TextInput> 
+                    <TextInput keyboardType="numeric" style={styles.loginInput}></TextInput>
+                    <TextInput keyboardType="numeric" style={styles.loginInput}></TextInput>
+                    <TextInput keyboardType="numeric" style={styles.loginInput}></TextInput>
+                    <TextInput keyboardType="numeric" style={styles.loginInput}></TextInput>
+                </View>
+                <Pressable style={styles.loginButton}>
+                    <Text style={styles.loginButtonText}>Verificar</Text>
                 </Pressable>
             </View>
-            
         </View>
     )
 }
