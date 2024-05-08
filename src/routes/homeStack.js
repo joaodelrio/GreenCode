@@ -7,7 +7,7 @@ import Teste from '../screens/Teste';
 
 const screens = {
     Home: {
-        screen: Teste,
+        screen: Chat,
     }
 };
 

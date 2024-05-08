@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, Button, 
 import { MaterialIcons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
-import audio from "../../assets/audio2.m4a";
+import { OPENAI_API_KEY } from '../../config.js';
 
 export default function Chat() {
 
@@ -30,6 +30,22 @@ export default function Chat() {
     const generateRandomId = () => {
       return Math.floor(Math.random() * 1000000); // Gera um número aleatório entre 0 e 999999
     };
+
+    const transcribeAudio = async (uri) => {
+      console.log('Transcrevendo áudio...');
+      const file = { uri: uri, name: 'audio.m4a', type: 'audio/m4a' };
+      const formData = new FormData();
+      formData.append('model', 'whisper-1');
+      formData.append('file', file);
+      formData.append('response_format', 'text');
+      const res = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+          headers: { Authorization: 'Bearer ' + OPENAI_API_KEY, 'Content-Type': 'multipart/form-data' },
+          method: 'POST',
+          body: formData,
+      });
+      const text = await res.text();
+      return text;
+    }
 
     const renderItem = ({ item }) => {
         if(item.type === 'text'){
@@ -84,9 +100,17 @@ export default function Chat() {
             content: newPath,
             type: "audio",
           };
-          setMessages([...messages,newAudio]);
-
-
+          const text = await transcribeAudio(newPath);
+          console.log(text);
+          const autoResponse = handleAutomaticResponse(text);
+          const botMessage = {
+              id: generateRandomId(), // ou qualquer outra lógica para gerar um ID único
+              sender: 'Bot',
+              content: autoResponse,
+              type: 'text',
+          };
+          // Adiciona a resposta automática ao array de mensagens
+          setMessages([...messages, newAudio, botMessage]);
       } catch (error) {
           console.error('Failed to stop recording', error);
       }
