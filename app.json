@@ -7,9 +7,9 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/greencode.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#19B729"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -34,7 +34,8 @@
           "microphonePermission": "CUSTOM: Allow $(PRODUCT_NAME) to access your microphone",
           "speechRecognitionPermission": "CUSTOM: Allow $(PRODUCT_NAME) to access your speech recognition"
         }
-      ]
+      ],
+      "expo-font"
     ]
   }
 }
