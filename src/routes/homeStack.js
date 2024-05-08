@@ -7,9 +7,9 @@ import * as React from 'react';
 import Home from '../screens/Home';
 import Login from '../screens/Login';
 import SMSConfirm from '../screens/SMSConfirm';
-import Chat from '../screens/Chat';
 import Audio from '../screens/Audio';
 import Teste from '../screens/Teste';
+import Config from '../screens/Config';
 
 // const screens = {
 //     Home: {
@@ -28,9 +28,10 @@ function App() {
       screenOptions={{
         headerShown: false
       }}>
-        <Stack.Screen name="Chat" component={Chat} />
+        <Stack.Screen name="Config" component={Config} />   
+        <Stack.Screen name="Chat" component={Chat} /> 
         <Stack.Screen name="Login" component={Login} />    
-        <Stack.Screen name="SMSConfirm" component={SMSConfirm} />         
+        <Stack.Screen name="SMSConfirm" component={SMSConfirm} />      
         <Stack.Screen name="Home" component={Home} />
         
       </Stack.Navigator>

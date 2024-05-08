@@ -1,6 +1,6 @@
 import React, { useState, useEffect} from 'react';
 import { View, Text, Button } from 'react-native';
-import { OPENAI_API_KEY } from '../../config.js';
+import { OPENAI_API_KEY } from '../../config-env.js';
 import * as FileSystem from 'expo-file-system';
 
 

@@ -2,10 +2,11 @@ import React, {useState, useEffect} from 'react';
 import { View, Text, StyleSheet, TextInput, Image, TouchableOpacity, FlatList, Button, Pressable } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
+import { getResponse } from '../apiOpenAi/api';
 import * as FileSystem from 'expo-file-system';
-import { OPENAI_API_KEY } from '../../config.js';
+import { OPENAI_API_KEY } from '../../config-env.js';
 
-export default function Chat() {
+export default function Chat({navigation}) {
 
     const date = new Date();
     const day = date.getDate();
@@ -42,6 +43,10 @@ export default function Chat() {
     const generateRandomId = () => {
       return Math.floor(Math.random() * 1000000); // Gera um número aleatório entre 0 e 999999
     };
+
+   const navigateToConfig = ()=>{
+      navigation.navigate('Config')
+   }
 
     const transcribeAudio = async (uri) => {
       console.log('Transcrevendo áudio...');
@@ -161,25 +166,30 @@ export default function Chat() {
       }
     };
 
-    const handleAutomaticResponse = (userMessage) => {
-        // Lógica para gerar uma resposta automática com base na mensagem do usuário
-        let response = "";
-    
+      const handleAutomaticResponse = (userMessage) => {
+
         // Verifica a mensagem do usuário e gera uma resposta correspondente
         if (userMessage.toLowerCase().includes("quantidade")) {
             if(userMessage.match(/\d+/g)==null){
-                response = "Desculpe, não entendi. Poderia informar a quantidade?";
+                setResponse("Desculpe, não entendi. Poderia informar a quantidade?")
             } else if(userMessage.match(/kg/g)==null){
-                response = "Desculpe, não entendi. Poderia informar a unidade de medida da quantidade? [kg, Ton, lt, Un]";
+                setResponse("Desculpe, não entendi. Poderia informar a unidade de medida da quantidade? [kg, Ton, lt, Un]")
             } else {
-              response = "Pela sua mensagem, foi entendido as seguintes informações:\nQuantidade:" + userMessage.match(/\d+/g) + userMessage.match(/kg/g) + ";";
+              setResponse("Pela sua mensagem, foi entendido as seguintes informações:\nQuantidade:" + userMessage.match(/\d+/g) + userMessage.match(/kg/g) + ";")
             }
         } else if (userMessage.toLowerCase().includes("ajuda")) {
-            response = "Claro! Como posso te ajudar?";
+            setResponse("Claro! Como posso te ajudar?")
         } else {
-            response = "Desculpe, não entendi. Posso te ajudar com algo mais?";
+          (async () => {
+            try {
+              const responseData = await getResponse(inputText)
+              console.log("Responsta:" + responseData)
+              setResponse(responseData)
+            }catch (e) {
+              console.log(e.message)
+            }
+          })();
         }
-    
         return response;
     };
 
@@ -254,7 +264,7 @@ export default function Chat() {
               flexDirection: 'row',
               justifyContent: 'space-between'
             }}>
-              <MaterialIcons name="settings" size={25} color="white" />
+              <MaterialIcons onPress={()=>navigateToConfig()}  name="settings" size={25} color="white" />
               <MaterialIcons name="help" size={25} color="white" />
               <MaterialIcons name="logout" size={25} color="#F23131" />
             </View>

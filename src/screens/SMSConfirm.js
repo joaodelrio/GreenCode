@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { StyleSheet, Text, TextInput, View, Image, Pressable} from "react-native";
 
-export default function SMsConfirm({navigation}){
+export default function SMSConfirm({navigation}){
 
     const [code, setCode] = useState(undefined)
     const [digitsCount, setDigitsCount] = useState(0)
