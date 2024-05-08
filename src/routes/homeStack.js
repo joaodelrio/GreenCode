@@ -7,6 +7,9 @@ import * as React from 'react';
 import Home from '../screens/Home';
 import Login from '../screens/Login';
 import SMSConfirm from '../screens/SMSConfirm';
+import Chat from '../screens/Chat';
+import Audio from '../screens/Audio';
+import Teste from '../screens/Teste';
 
 // const screens = {
 //     Home: {

@@ -30,7 +30,9 @@ export const useVoiceRecognition = () => {
         resetState();
         try {
             await Voice.start('pt-BR');
+            console.log("Comecou a gravar")
         } catch (e) {
+            console.log("Erro no começou a gravar")
             console.error(e);
         }
     }, [resetState]);
@@ -38,6 +40,7 @@ export const useVoiceRecognition = () => {
     const stopRecognizing = useCallback(async () => {
         try {
             await Voice.stop();
+            console.log("Parou de gravar")
         } catch (e) {
             console.error(e);
         }
