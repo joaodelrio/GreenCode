@@ -3,9 +3,9 @@ import { View, Text, StyleSheet, TextInput, Image, TouchableOpacity, FlatList, B
 import { MaterialIcons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
-import { OPENAI_API_KEY } from '../../config.js';
+import { OPENAI_API_KEY } from '../../config-env.js';
 
-export default function Chat() {
+export default function Chat({navigation}) {
 
     const date = new Date();
     const day = date.getDate();
@@ -42,6 +42,10 @@ export default function Chat() {
     const generateRandomId = () => {
       return Math.floor(Math.random() * 1000000); // Gera um número aleatório entre 0 e 999999
     };
+
+   const navigateToConfig = ()=>{
+      navigation.navigate('Config')
+   }
 
     const transcribeAudio = async (uri) => {
       console.log('Transcrevendo áudio...');
@@ -254,7 +258,7 @@ export default function Chat() {
               flexDirection: 'row',
               justifyContent: 'space-between'
             }}>
-              <MaterialIcons name="settings" size={25} color="white" />
+              <MaterialIcons onPress={()=>navigateToConfig()}  name="settings" size={25} color="white" />
               <MaterialIcons name="help" size={25} color="white" />
               <MaterialIcons name="logout" size={25} color="#F23131" />
             </View>
