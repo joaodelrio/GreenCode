@@ -59,9 +59,7 @@ export default function Chat() {
         console.log("Gravação de áudio iniciada");
         try {
           setIsRecording(true);
-          const recording = new Audio.Recording();
-          await recording.prepareToRecordAsync(Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY);
-          await recording.startAsync();
+          const { recording } = await Audio.Recording.createAsync( Audio.RecordingOptionsPresets.HIGH_QUALITY);
           setRecording(recording);
 
         } catch (error) {
@@ -115,7 +113,7 @@ export default function Chat() {
 
     const playRecording = async (uri) => {
       try {
-          const { sound } = await Audio.Sound.createAsync({ uri: "../../assets/audio2.m4a" });
+          const { sound } = await Audio.Sound.createAsync({ uri: uri });
           setSound(sound);
           console.log("Playing: "+uri);
           await sound.playAsync();
