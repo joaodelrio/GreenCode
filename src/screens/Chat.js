@@ -40,6 +40,11 @@ export default function Chat({navigation}) {
 
     const [isPlaying, setIsPlaying] = useState(false);
 
+    const [response, setResponse] = useState(false);
+
+    const [inputAux, setInputAux] = useState();
+
+
     const generateRandomId = () => {
       return Math.floor(Math.random() * 1000000); // Gera um número aleatório entre 0 e 999999
     };
@@ -121,15 +126,17 @@ export default function Chat({navigation}) {
           };
           const text = await transcribeAudio(newPath);
           console.log(text);
-          const autoResponse = handleAutomaticResponse(text);
-          const botMessage = {
-              id: generateRandomId(), // ou qualquer outra lógica para gerar um ID único
-              sender: 'Bot',
-              content: autoResponse,
-              type: 'text',
-          };
-          // Adiciona a resposta automática ao array de mensagens
-          setMessages([...messages, newAudio, botMessage]);
+          // const autoResponse = handleAutomaticResponse(text);
+          // const botMessage = {
+          //     id: generateRandomId(), // ou qualquer outra lógica para gerar um ID único
+          //     sender: 'Bot',
+          //     content: autoResponse,
+          //     type: 'text',
+          // };
+          // // Adiciona a resposta automática ao array de mensagens
+          setMessages([...messages, newAudio]);
+          setInputAux(text);
+          setResponse(true);
       } catch (error) {
           console.error('Failed to stop recording', error);
       }
@@ -166,34 +173,46 @@ export default function Chat({navigation}) {
       }
     };
 
-      const handleAutomaticResponse = (userMessage) => {
-
+    const handleAutomaticResponse = async (userMessage) => {
+        let response = '';
         // Verifica a mensagem do usuário e gera uma resposta correspondente
         if (userMessage.toLowerCase().includes("quantidade")) {
-            if(userMessage.match(/\d+/g)==null){
-                setResponse("Desculpe, não entendi. Poderia informar a quantidade?")
-            } else if(userMessage.match(/kg/g)==null){
-                setResponse("Desculpe, não entendi. Poderia informar a unidade de medida da quantidade? [kg, Ton, lt, Un]")
-            } else {
-              setResponse("Pela sua mensagem, foi entendido as seguintes informações:\nQuantidade:" + userMessage.match(/\d+/g) + userMessage.match(/kg/g) + ";")
-            }
-        } else if (userMessage.toLowerCase().includes("ajuda")) {
-            setResponse("Claro! Como posso te ajudar?")
-        } else {
-          (async () => {
-            try {
-              const responseData = await getResponse(inputText)
-              console.log("Responsta:" + responseData)
-              setResponse(responseData)
-            }catch (e) {
-              console.log(e.message)
-            }
-          })();
-        }
-        return response;
+          if(userMessage.match(/\d+/g)==null){
+              response = "Desculpe, não entendi. Poderia informar a quantidade?"
+          } else if(userMessage.match(/kg/g)==null){
+              response = "Desculpe, não entendi. Poderia informar a unidade de medida da quantidade? [kg, Ton, lt, Un]"
+          } else {
+              response = "Pela sua mensagem, foi entendido as seguintes informações:\nQuantidade:" + userMessage.match(/\d+/g) + userMessage.match(/kg/g) + ";"
+          }
+      } else if (userMessage.toLowerCase().includes("ajuda")) {
+              response = "Claro! Como posso te ajudar?"
+      } else {
+        (async () => {
+          try {
+            const responseData = await getResponse(inputAux)
+            response = responseData;
+            console.log("INPUTAUX: "+ inputAux )
+            console.log("RESPONSE: "+ response);
+            const botMessage = {
+              id: generateRandomId(), // ou qualquer outra lógica para gerar um ID único
+              sender: 'Bot',
+              content: response,
+              type: 'text',
+              date: day+"/"+month+"/ "+hours+":"+minutes
+            };
+            // Adiciona a resposta automática ao array de mensagens
+            setMessages([...messages,botMessage]);
+            setInputAux('');
+            setResponse(false);
+          }catch (e) {
+            console.log(e.message)
+          }
+        })();
+      }
+      return response;
     };
 
-    const handleSend = () => {
+    const handleSend = async () => {
       setIsTyping(false);
       if (inputText.trim() === "") {
           // Se a mensagem estiver em branco, não faz nada
@@ -214,33 +233,27 @@ export default function Chat({navigation}) {
       };
 
       console.log(messages)
-
+      
       // Lógica adicional: enviar mensagem para o servidor, etc.
 
       // Gera uma resposta automática com base na mensagem do usuário
-      const autoResponse = handleAutomaticResponse(inputText);
-
-      const botMessage = {
-          id: generateRandomId(), // ou qualquer outra lógica para gerar um ID único
-          sender: 'Bot',
-          content: autoResponse,
-          type: 'text',
-          date: day+"/"+month+"/ "+hours+":"+minutes
-      };
-
-      // Adiciona a resposta automática ao array de mensagens
-      setMessages([...messages, newMessage,botMessage]);
-
-      console.log(messages)
-
-      // Limpa o campo de entrada após o envio da mensagem
+      setMessages([...messages, newMessage]);
+      setInputAux(inputText);
       setInputText('');
+      setResponse(true);
     };
 
     const handleClear = () => {
         setMessages([]);
         console.log("Mensagens apagadas");
     };
+
+    useEffect(() => {
+      // Every time the Response state changes, check if the last message is from the bot
+      if (response) {
+        handleAutomaticResponse(inputAux);
+      }
+    }, [response]);
 
     return ( 
         <View style={styles.container}>
